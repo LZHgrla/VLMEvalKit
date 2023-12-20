@@ -56,7 +56,6 @@ class LLaVA_XTuner:
         llm = AutoModelForCausalLM.from_pretrained(llm_path,
                                                    trust_remote_code=True,
                                                    torch_dtype=torch_dtype,
-                                                   device='cpu',
                                                    device_map='cpu')
         tokenizer = AutoTokenizer.from_pretrained(llm_path,
                                                   trust_remote_code=True,
@@ -73,7 +72,7 @@ class LLaVA_XTuner:
             assert visual_encoder_path is not None, (
                 'Please specify the `visual_encoder_path`!')
         visual_encoder = CLIPVisionModel.from_pretrained(
-            visual_encoder_path, torch_dtype=torch_dtype, device='cpu', device_map='cpu')
+            visual_encoder_path, torch_dtype=torch_dtype, device_map='cpu')
         image_processor = CLIPImageProcessor.from_pretrained(
             visual_encoder_path)
         print(f'Load visual_encoder from {visual_encoder_path}')
@@ -81,16 +80,16 @@ class LLaVA_XTuner:
         # load adapter
         if 'llm_adapter' in os.listdir(llava_path):
             adapter_path = osp.join(llava_path, 'llm_adapter')
-            llm = PeftModel.from_pretrained(llm, adapter_path, device='cpu', device_map='cpu')
+            llm = PeftModel.from_pretrained(llm, adapter_path, device_map='cpu')
             print(f'Load LLM adapter from {llava_path}')
         if 'visual_encoder_adapter' in os.listdir(llava_path):
             adapter_path = osp.join(llava_path, 'visual_encoder_adapter')
-            visual_encoder = PeftModel.from_pretrained(visual_encoder, adapter_path, device='cpu', device_map='cpu')
+            visual_encoder = PeftModel.from_pretrained(visual_encoder, adapter_path, device_map='cpu')
             print(f'Load visual_encoder adapter from {llava_path}')
 
         # build projector
         projector_path = osp.join(llava_path, 'projector')
-        projector = AutoModel.from_pretrained(projector_path, torch_dtype=torch_dtype, device='cpu', device_map='cpu')
+        projector = AutoModel.from_pretrained(projector_path, torch_dtype=torch_dtype, device_map='cpu')
         print(f'Load projector from {llava_path}')
 
         llm.eval()
