@@ -10,7 +10,7 @@ from transformers import (AutoModel, AutoModelForCausalLM, AutoTokenizer,
                           CLIPImageProcessor, CLIPVisionModel,
                           GenerationConfig)
 
-from ..smp import cn_string, decode_base64_to_image_file
+from ..smp import cn_string, decode_base64_to_image_file, get_cache_path
 from ..utils import DATASET_TYPE
 
 
@@ -36,8 +36,13 @@ class LLaVA_XTuner:
                 'using LLaVA_XTuner')
             exit(-1)
 
-        llava_path = snapshot_download(
-            repo_id=llava_path) if not osp.isdir(llava_path) else llava_path
+        if not osp.isdir(llava_path):
+            cache_path = get_cache_path(llava_path)
+            if cache_path is not None:
+                llava_path = cache_path
+            else:
+                llava_path = snapshot_download(repo_id=llava_path)
+        assert osp.exists(llava_path) and osp.isdir(llava_path)
 
         # build visual_encoder
         if 'llm' in os.listdir(llava_path):
