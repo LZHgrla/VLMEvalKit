@@ -10,7 +10,7 @@ from transformers import (AutoModel, AutoModelForCausalLM, AutoTokenizer,
                           CLIPImageProcessor, CLIPVisionModel,
                           GenerationConfig)
 
-from ..smp import cn_string, decode_base64_to_image_file, get_cache_path
+from ..smp import cn_string, decode_base64_to_image_file, get_cache_path, read_ok
 from ..utils import DATASET_TYPE
 
 
@@ -131,12 +131,12 @@ class LLaVA_XTuner:
             tgt_path = []
             for img, im_name in zip(line['image'], line['image_path']):
                 path = osp.join(img_root, im_name)
-                if not osp.exists(path):
+                if not read_ok(path):
                     decode_base64_to_image_file(img, path)
                 tgt_path.append(path)
         else:
             tgt_path = osp.join(img_root, f"{line['index']}.jpg")
-            if not osp.exists(tgt_path):
+            if not read_ok(tgt_path):
                 decode_base64_to_image_file(line['image'], tgt_path)
 
         if dataset is not None and DATASET_TYPE(dataset) == 'multi-choice':
